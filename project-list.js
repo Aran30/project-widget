@@ -113,6 +113,10 @@ export class ProjectList extends LitElement {
 
   static get properties() {
     return {
+      // Name of the system (needs to be existing in project service)
+      system: {
+        type: String
+      },
       // l2p groups
       groups:{
         type: Array
@@ -201,22 +205,29 @@ export class ProjectList extends LitElement {
     // use a default value for project service URL for local testing
     this.projectServiceURL = "http://127.0.0.1:8080";
     this.contactServiceURL = "http://127.0.0.1:8080/contactservice";
-    window.addEventListener('metadata-changed', this._changeMetadata);
+    window.addEventListener('metadata-changed', this._changeMetadata.bind(this));
     this.disableAllProjects = false;
-    this.showProjects(false);
     this.yjsAddress = "http://127.0.0.1:1234";
     this.yjsResourcePath = "./socket.io";
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+
+    // here the properties are already set (otherwise this.system is undefinied in showProjects)
+    this.showProjects(false);
   }
 
   _changeMetadata(event){
     console.log("Project is: " + event.detail.project);
     console.log("New Metadata is: " + event.detail.newMetadata);
+    console.log("is this correcrt" + this.projectServiceURL);
     var project = JSON.parse(event.detail.project);
     var projectName =  project.name;
     var oldMetadata =  project.metadata;
     var newMetadata =  event.detail.newMetadata;
     // due to my lack of experience in frontend programming, I didnt know how to access the this.projectserviceurl var :( 
-    fetch("http://127.0.0.1:8080"+ "/projects/changeMetadata/", {
+    fetch("http://127.0.0.1:8080"+ "/projects/" + this.system + "/changeMetadata/", {
       method: "POST",
       headers: Auth.getAuthHeaderWithSub(),
       body: JSON.stringify({
@@ -368,7 +379,7 @@ export class ProjectList extends LitElement {
   _onCreateProjectButtonClicked() {
     // clear input fields of dialog
     this.resetCreateProjectDialog();
-
+    console.log("system is the one ocming now" + this.system);
     // add statusbar to be able to get user infos for this step
     console.log(this.contactServiceURL);
     fetch(this.contactServiceURL + "/groups", {
@@ -469,7 +480,7 @@ export class ProjectList extends LitElement {
     // one from the current user
     const headers = allProjects? undefined : Auth.getAuthHeader();
 */
-    fetch(this.projectServiceURL + "/projects", {
+    fetch(this.projectServiceURL + "/projects/" + this.system, {
       method: "GET",
       headers: Auth.getAuthHeaderWithSub()
     }).then(response => {
@@ -609,7 +620,7 @@ export class ProjectList extends LitElement {
         console.log(data);
         const users = Object.values(data);
         //const newProject = {"id":this.projects.length, "name":projectName, "Linked Group":linkedGroup, "Group Members":users};
-          fetch(this.projectServiceURL + "/projects", {
+          fetch(this.projectServiceURL + "/projects/" + this.system, {
           method: "POST",
           headers:  Auth.getAuthHeaderWithSub(),
           body: JSON.stringify({
@@ -762,7 +773,7 @@ export class ProjectList extends LitElement {
             break;
         }
       }
-      fetch(this.projectServiceURL + "/projects/changeGroup/", {
+      fetch(this.projectServiceURL + "/projects/" + this.system + "/changeGroup/", {
         method: "POST",
         headers: Auth.getAuthHeaderWithSub(),
         body: JSON.stringify({
@@ -825,7 +836,7 @@ export class ProjectList extends LitElement {
    */
   _deleteProject() {
     let projectToDelete = this.projectOptionsSelected;
-    fetch(this.projectServiceURL + "/projects/" + projectToDelete.name, {
+    fetch(this.projectServiceURL + "/projects/" + this.system + "/" + projectToDelete.name, {
       method: "DELETE",
       headers: Auth.getAuthHeaderWithSub(),
       body: JSON.stringify({
