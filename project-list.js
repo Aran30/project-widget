@@ -10,7 +10,6 @@ import '@polymer/paper-listbox/paper-listbox.js';
 import '@polymer/paper-tabs';
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/iron-icons/social-icons.js';
-import OnlineUserListHelper from './util/online-user-list-helper'
 
 import Auth from './util/auth';
 
