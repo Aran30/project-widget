@@ -12,7 +12,7 @@ import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/iron-icons/social-icons.js';
 
 import Auth from './util/auth';
-
+import OnlineUserListHelper from './util/online-user-list-helper'
 
 /**
  * The project list element provides the functionality to list existing projects and to create new ones.
